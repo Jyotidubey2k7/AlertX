@@ -1,0 +1,81 @@
+apply plugin: "com.android.application"
+
+// Use the legacy react.gradle script instead of "com.facebook.react" plugin.
+// The plugin runs codegen that generates duplicate classes already present in
+// the react-native AAR, causing mergeDexRelease failures on old architecture.
+apply from: "../../node_modules/react-native/react.gradle"
+
+def enableSeparateBuildPerCPUArchitecture = false
+
+def enableProguardInReleaseBuilds = false
+
+def jscFlavor = 'org.webkit:android-jsc:+'
+
+android {
+    namespace "com.civicalerts"
+    ndkVersion rootProject.ext.ndkVersion
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId "com.civicalerts"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk false
+            include "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
+        }
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    packagingOptions {
+        pickFirst "lib/armeabi-v7a/libc++_shared.so"
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/x86/libc++_shared.so"
+        pickFirst "lib/x86_64/libc++_shared.so"
+    }
+}
+
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation("com.facebook.react:react-native:0.70.6")
+
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-engine:0.70.6")
+    } else {
+        implementation jscFlavor
+    }
+}
+
+apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
