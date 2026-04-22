@@ -1,4 +1,4 @@
-# CivicAlerts
+# AlertX
 
 A React Native app for real-time community incident reporting and notifications. Users can report accidents, outages, construction, and hazards near them, and receive alerts about nearby incidents.
 
